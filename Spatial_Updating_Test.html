@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memory Updating Test</title>
+  <script src="jspsych-6.0.5/jspsych.js"></script>
+  <script src="jspsych-6.0.5/chance.js"></script>
+  <script src="jquery-3.4.1.js"></script>
+
+  <script src="jspsych-6.0.5/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="jspsych-6.0.5/plugins/jspsych-image-keyboard-response.js"></script>
+  <script src="jspsych-6.0.5/plugins/jspsych-survey-text.js"></script>
+  <script src="jspsych-6.0.5/plugins/jspsych-spatial-updating.js"></script>
+  <link href="jspsych-6.0.5/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+</head>
+<body>
+</body>
+<script>
+
+document.body.style.backgroundColor = "black";
+document.body.style.color = "white";
+
+
+// define all global variables needed across the plugins
+timeline = [];
+var myvar = "";
+xClicks = []; //array of x position mouse clicks - only collected at test
+yClicks = []; //array of y position mouse clicks - only collected at test
+set_1_stim =[];
+stimArray = []; //array of the stimuli in html format
+indices = []; //randomly chosen indices for selecting positions for the stimuli
+xPosition = []; //the x positions used for stimulus presentation
+yPosition = []; //the y positions used for stimulus presentation
+var set_2_X = []
+var set_2_Y = []
+var shuffledArray = [];
+var shuffledXpos = []
+var shuffledYpos = []
+
+/* define welcome message trial */
+var welcome = {
+  type: "html-keyboard-response",
+  stimulus: "Press any key to begin."
+};
+timeline.push(welcome);
+
+/* define instructions trial */
+var instructions = {
+  type: "html-keyboard-response",
+  stimulus: "<p>In this experiment you will see a series of everyday objects presented " +
+      "one at a time at the center of the screen for 2.5 seconds.  </p><p>" +
+      "When the image disappears, use the mouse to click the location on the screen where that image was last presented during the task you did earlier today. </p>" +
+      "<p>After you click the location press the space bar to move to the next trial. </p>" +
+      "<p>You can take up to 10 seconds to make your response.   </p>" +
+      "<p>Please take your time to make your response and CLICK ONLY ONCE PER IMAGE.</p>" +
+      "<div style='width: 700px;'>"+
+      "</div>"+
+      "<p>Press any key to begin.</p>",
+  post_trial_gap: 2000
+};
+timeline.push(instructions);
+
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+// define trial to get ID number and save that information for use in filename
+var get_ID = {
+  type: 'survey-text',
+  questions: [{prompt: "Please Enter Participant ID"},{prompt: ""}],
+  on_finish: function(data){
+    var resp = jsPsych.data.get().select('responses').values[0];
+    //myvar = JSON.parse(resp).Q0;
+    console.log(myvar)
+
+    set_number = getUrlVars()["set"];
+    myvar = getUrlVars()["id"]
+    // could add a variable passed that gives a set number, all of these images then could be created with a variable set number to give more flexibility
+
+    // list of all possible stimuli in the experiment
+    stim = [set_number+"/001a.jpg",set_number+"/002a.jpg",set_number+"/003a.jpg",set_number+"/004a.jpg",
+    set_number+"/005a.jpg",set_number+"/006a.jpg",set_number+"/007a.jpg",set_number+"/008a.jpg",
+    set_number+"/009a.jpg",set_number+"/010a.jpg",set_number+"/011a.jpg",set_number+"/012a.jpg",
+    set_number+"/013a.jpg",set_number+"/014a.jpg",set_number+"/015a.jpg",set_number+"/016a.jpg",
+    set_number+"/017a.jpg",set_number+"/018a.jpg",set_number+"/019a.jpg",set_number+"/020a.jpg",
+    set_number+"/021a.jpg",set_number+"/022a.jpg",set_number+"/023a.jpg",set_number+"/024a.jpg",
+    set_number+"/025a.jpg",set_number+"/026a.jpg",set_number+"/027a.jpg",set_number+"/028a.jpg",
+    set_number+"/029a.jpg",set_number+"/030a.jpg",set_number+"/031a.jpg",set_number+"/032a.jpg",
+    set_number+"/033a.jpg",set_number+"/034a.jpg",set_number+"/035a.jpg",set_number+"/036a.jpg",
+    set_number+"/037a.jpg",set_number+"/038a.jpg",set_number+"/039a.jpg",set_number+"/040a.jpg",
+    set_number+"/041a.jpg",set_number+"/042a.jpg",set_number+"/043a.jpg",set_number+"/044a.jpg",
+    set_number+"/045a.jpg",set_number+"/046a.jpg",set_number+"/047a.jpg",set_number+"/048a.jpg",
+    set_number+"/049a.jpg",set_number+"/050a.jpg",set_number+"/051a.jpg",set_number+"/052a.jpg",
+    set_number+"/053a.jpg",set_number+"/054a.jpg",set_number+"/055a.jpg",set_number+"/056a.jpg",
+    set_number+"/057a.jpg",set_number+"/058a.jpg",set_number+"/059a.jpg",set_number+"/060a.jpg",
+    set_number+"/061a.jpg",set_number+"/062a.jpg",set_number+"/063a.jpg",set_number+"/064a.jpg",
+    set_number+"/065a.jpg",set_number+"/066a.jpg",set_number+"/067a.jpg",set_number+"/068a.jpg",
+    set_number+"/069a.jpg",set_number+"/070a.jpg",set_number+"/071a.jpg",set_number+"/072a.jpg",
+    set_number+"/073a.jpg",set_number+"/074a.jpg",set_number+"/075a.jpg",set_number+"/076a.jpg",
+    set_number+"/077a.jpg",set_number+"/078a.jpg",set_number+"/079a.jpg",set_number+"/080a.jpg",
+    set_number+"/081a.jpg",set_number+"/082a.jpg",set_number+"/083a.jpg",set_number+"/084a.jpg",
+    set_number+"/085a.jpg",set_number+"/086a.jpg",set_number+"/087a.jpg",set_number+"/088a.jpg",
+    set_number+"/089a.jpg",set_number+"/090a.jpg",set_number+"/091a.jpg",set_number+"/092a.jpg",
+    set_number+"/093a.jpg",set_number+"/094a.jpg",set_number+"/095a.jpg",set_number+"/096a.jpg",
+    set_number+"/097a.jpg",set_number+"/098a.jpg",set_number+"/099a.jpg",set_number+"/100a.jpg",
+    set_number+"/101a.jpg",set_number+"/102a.jpg",set_number+"/103a.jpg",set_number+"/104a.jpg",
+    set_number+"/105a.jpg",set_number+"/106a.jpg",set_number+"/107a.jpg",set_number+"/108a.jpg",
+    set_number+"/109a.jpg",set_number+"/110a.jpg",set_number+"/111a.jpg",set_number+"/112a.jpg",
+    set_number+"/113a.jpg",set_number+"/114a.jpg",set_number+"/115a.jpg",set_number+"/116a.jpg",
+    set_number+"/117a.jpg",set_number+"/118a.jpg",set_number+"/119a.jpg",set_number+"/120a.jpg",
+    set_number+"/121a.jpg",set_number+"/122a.jpg",set_number+"/123a.jpg",set_number+"/124a.jpg",
+    set_number+"/125a.jpg",set_number+"/126a.jpg",set_number+"/127a.jpg",set_number+"/128a.jpg",
+    set_number+"/129a.jpg",set_number+"/130a.jpg",set_number+"/131a.jpg",set_number+"/132a.jpg",
+    set_number+"/133a.jpg",set_number+"/134a.jpg",set_number+"/135a.jpg",set_number+"/136a.jpg",
+    set_number+"/137a.jpg",set_number+"/138a.jpg",set_number+"/139a.jpg",set_number+"/140a.jpg",
+    set_number+"/141a.jpg",set_number+"/142a.jpg",set_number+"/143a.jpg",set_number+"/144a.jpg",
+    set_number+"/145a.jpg",set_number+"/146a.jpg",set_number+"/147a.jpg",set_number+"/148a.jpg",
+    set_number+"/149a.jpg",set_number+"/150a.jpg",set_number+"/151a.jpg",set_number+"/152a.jpg",
+    set_number+"/153a.jpg",set_number+"/154a.jpg",set_number+"/155a.jpg",set_number+"/156a.jpg",
+    set_number+"/157a.jpg",set_number+"/158a.jpg",set_number+"/159a.jpg",set_number+"/160a.jpg",
+    set_number+"/161a.jpg",set_number+"/162a.jpg",set_number+"/163a.jpg",set_number+"/164a.jpg",
+    set_number+"/165a.jpg",set_number+"/166a.jpg",set_number+"/167a.jpg",set_number+"/168a.jpg",
+    set_number+"/169a.jpg",set_number+"/170a.jpg",set_number+"/171a.jpg",set_number+"/172a.jpg",
+    set_number+"/173a.jpg",set_number+"/174a.jpg",set_number+"/175a.jpg",set_number+"/176a.jpg",
+    set_number+"/177a.jpg",set_number+"/178a.jpg",set_number+"/179a.jpg",set_number+"/180a.jpg",
+    set_number+"/181a.jpg",set_number+"/182a.jpg",set_number+"/183a.jpg",set_number+"/184a.jpg",
+    set_number+"/185a.jpg",set_number+"/186a.jpg",set_number+"/187a.jpg",set_number+"/188a.jpg",
+    set_number+"/189a.jpg",set_number+"/190a.jpg",set_number+"/191a.jpg",set_number+"/192a.jpg"]
+    //lists of x and y screen positions - using absolute positioning
+    xPos = ["15%","25%","35%","45%","55%","65%","75%","15%","25%","35%","45%","55%","65%","75%","15%","25%","35%","45%","55%","65%","75%","15%","25%","35%",
+    "45%","55%","65%","75%","15%","25%","35%","45%","55%","65%","75%","15%","25%","35%","45%","55%","65%","75%","15%","25%","35%","45%","55%","65%","75%",]
+
+    yPos = ["10%","10%","10%","10%","10%","10%","10%","20%","20%","20%","20%","20%","20%","20%","30%","30%","30%","30%","30%","30%","30%","40%","40%","40%",
+    "40%","40%","40%","40%","50%","50%","50%","50%","50%","50%","50%","60%","60%","60%","60%","60%","60%","60%","70%","70%","70%","70%","70%","70%","70%"]
+
+    // create the seeded PRNG for indexing into the stimulus and position arrays
+    var chance1 = new Chance(myvar); // you can choose a seed here, i chose 124
+    console.log(chance1)
+    indices = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
+      25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48]
+
+    var shuffled_indices= chance1.shuffle(indices);
+    //console.log(shuffled_indices)
+    var shuffledStim = chance1.shuffle(stim);
+    console.log(shuffledStim)
+    var test_stimuli = shuffledStim.slice(0,24)
+    //  console.log(test_stimuli)
+      //loop over the arrays above to format into html strings
+      var i;
+      for (i = 0; i < 24; i++) {
+        str1 = '<img src='
+        str2 =  '>'
+
+        var stim_html = str1+test_stimuli[i]+str2
+
+        stimArray.push(stim_html)
+      }
+
+
+      // create all the trial variables
+      var trial_1 = {
+        stimulus: stimArray[0],
+      };
+
+      var trial_2 = {
+        stimulus: stimArray[1],
+      };
+
+      var trial_3 = {
+        stimulus: stimArray[2],
+      };
+
+      var trial_4 = {
+        stimulus: stimArray[3],
+      };
+
+      var trial_5 = {
+        stimulus: stimArray[4],
+      };
+
+      var trial_6 = {
+        stimulus: stimArray[5],
+      };
+
+      var trial_7 = {
+        stimulus: stimArray[6],
+      };
+
+      var trial_8 = {
+        stimulus: stimArray[7],
+      };
+
+      var trial_9 = {
+        stimulus: stimArray[8],
+      };
+
+      var trial_10 = {
+        stimulus: stimArray[9],
+      };
+
+      var trial_11 = {
+        stimulus: stimArray[10],
+      };
+
+      var trial_12 = {
+        stimulus: stimArray[11],
+      };
+
+      var trial_13 = {
+        stimulus: stimArray[12],
+      };
+
+      var trial_14 = {
+        stimulus: stimArray[13],
+      };
+
+      var trial_15 = {
+        stimulus: stimArray[14],
+      };
+
+      var trial_16 = {
+        stimulus: stimArray[15],
+      };
+
+      var trial_17 = {
+        stimulus: stimArray[16],
+      };
+
+      var trial_18 = {
+        stimulus: stimArray[17],
+      };
+
+      var trial_19 = {
+        stimulus: stimArray[18],
+      };
+
+      var trial_20 = {
+        stimulus: stimArray[19],
+      };
+
+      var trial_21 = {
+        stimulus: stimArray[20],
+      };
+
+      var trial_22 = {
+        stimulus: stimArray[21],
+      };
+
+      var trial_23 = {
+        stimulus: stimArray[22],
+      };
+
+      var trial_24 = {
+        stimulus: stimArray[23],
+      };
+
+      var myArray =  [trial_1, trial_2, trial_3,trial_4, trial_5, trial_6,trial_7, trial_8, trial_9,trial_10, trial_11, trial_12,trial_13, trial_14, trial_15,trial_16, trial_17, trial_18,trial_19, trial_20, trial_21,trial_22, trial_23, trial_24];
+      //shuffle the stimulus array randomly
+      shuffledArray = jsPsych.randomization.repeat(myArray, 1);
+      //console.log(shuffledArray)
+
+      jsPsych.pauseExperiment();
+      jsPsych.addNodeToEndOfTimeline({
+        timeline: [{
+          type: 'html-keyboard-response',
+          timeline: shuffledArray,
+          stimulus_duration: 2500,
+          trial_duration: 10000,
+          choices: ['space'],
+          prompt: '<p>Click the last location then press the space bar.</p>'
+       }]
+      }, jsPsych.resumeExperiment)
+    }
+  };
+  timeline.push(get_ID)
+
+
+  //gets the position of the mouse click on each trial and pushes to the array
+  function printMousePos(event) {
+    x = event.clientX;
+    xPer = x/window.innerWidth;
+    y = event.clientY;
+    yPer = y/window.innerHeight;
+    xClicks.push(xPer*100);
+    yClicks.push(yPer*100);
+  }
+
+  document.addEventListener("click", printMousePos);
+
+  function saveData(myvar, data){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'write_data.php'); // 'write_data.php' is the path to the php file described above.
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({filename: myvar+"_test", filedata: data}));
+  };
+
+  function saveXData(myvar, xClicks){
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'write_data.php'); // 'write_data.php' is the path to the php file described above.
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      //xhr.send(JSON.stringify({filename: myvar + 'set_2_xLoc', filedata: shuffledXpos}));
+      //xhr.send(JSON.stringify({filename: myvar + 'set_2_yLoc', filedata: shuffledYpos}));
+      xhr.send(JSON.stringify({filename: myvar+'_xClicks', filedata: xClicks.toString()}));
+
+  };
+
+  function saveYData(myvar, yClicks){
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'write_data.php'); // 'write_data.php' is the path to the php file described above.
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      //xhr.send(JSON.stringify({filename: myvar + 'set_2_xLoc', filedata: shuffledXpos}));
+      //xhr.send(JSON.stringify({filename: myvar + 'set_2_yLoc', filedata: shuffledYpos}));
+      xhr.send(JSON.stringify({filename: myvar+'_yClicks', filedata: yClicks.toString()}));
+
+  };
+
+
+  //init and save data from x and y clicks as separate csv files - quick and easy - can edit this to write as one file
+  jsPsych.init({
+    timeline: [welcome,instructions,get_ID],
+    exclusions: {
+      min_width: 1000,
+      min_height: 600,
+    //      audio: true
+    },
+    default_iti: 250,
+     on_finish: function() {
+       saveData(myvar, jsPsych.data.get().csv());
+       saveXData(myvar,xClicks)
+       saveYData(myvar,yClicks)
+
+       jsPsych.getDisplayElement().innerHTML = "<p>Finished.</p><p>You can now close your browser window.</p>";
+     }
+  });
+</script>
+</html>
